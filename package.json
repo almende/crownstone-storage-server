@@ -14,8 +14,10 @@
     "url": "https://github.com/almende/crownstone-storage-server.git"
   },
   "dependencies": {
+    "body-parser": "^1.19.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
-    "influx": "^5.4.1"
+    "influx": "^5.4.1",
+    "minimist": "^1.2.0"
   }
 }
