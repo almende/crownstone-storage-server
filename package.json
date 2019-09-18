@@ -1,0 +1,15 @@
+{
+  "name": "crownstone-storage-server",
+  "version": "1.0.0",
+  "description": "Module to store crownstone data into a database",
+  "main": "index.js",
+  "module": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ludo Stellingwerff",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "esm": "^3.2.25"
+  }
+}
