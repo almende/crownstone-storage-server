@@ -51,17 +51,17 @@ api
           tags: {
             macaddress: measurement['MAC Address'],
             devicename: measurement['Device Name'],
-            devicetype: measurement['Device Type'],
-            datatype: measurement['Data Type'],
-            crownID: measurement['Crown ID'],
-            switchstate: measurement['Switch State'],
-            flags: measurement['Flags']
+            devicetype: parseInt(measurement['Device Type']),
+            datatype: parseInt(measurement['Data Type']),
+            crownID: parseInt(measurement['Crown ID']),
+            switchstate: parseInt(measurement['Switch State']),
+            flags: parseInt(measurement['Flags'])
           },
           fields: {
-            temperature: measurement['Temperature'],
-            powerfactor: measurement['Power Factor'],
-            powerusage: measurement['Power Usage'],
-            energyused: measurement['Energy Used']
+            temperature: parseFloat(measurement['Temperature']),
+            powerfactor: parseFloat(measurement['Power Factor']),
+            powerusage: parseFloat(measurement['Power Usage']),
+            energyused: parseFloat(measurement['Energy Used'])
           },
           timestamp: measurement['Local Timestamp']
         }], { precision: 's' })
