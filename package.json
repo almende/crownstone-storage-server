@@ -5,6 +5,7 @@
   "main": "index.js",
   "module": "main.js",
   "scripts": {
+    "start": "npm install; node index.js -h undagrid_influx -d crownstone -p 4444",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ludo Stellingwerff",
