@@ -6,7 +6,7 @@ const Influx = require('influx')
 
 const argv = require('minimist')(process.argv.slice(2), {
   'alias': { 'port': 'p', 'db_hostname': 'h', 'db_name': 'd' },
-  'default': { 'port': 3000, 'db_hostname': 'localhost', 'db_name': 'crownstone' }
+  'default': { 'port': 3000, 'db_hostname': 'localhost', 'db_name': 'undagrid_debug_log' }
 })
 
 // Starting Application information block:
@@ -39,31 +39,22 @@ api
       res.status(400).send({ 'result': 'error', 'error': 'Expected application/json contents' })
     } else {
       let measurement = req.body
-      if (!measurement['MAC Address'] || !measurement['Local Timestamp']) {
+      if (!measurement['Undagrid Debug Log']) {
         res.status(400).send({
           'result': 'error',
-          'error': 'This doesn\'t look like Crownstone data to me, missing MAC Address or Timestamp'
+          'error': 'This doesn\'t look like Undagrid Debug Log data to me.'
         })
       } else {
         //forward measurement to influx db
         influx.writePoints([{
-          measurement: 'crownstone',
+          measurement: 'undagrid_debug_log',
           tags: {
-            macaddress: measurement['MAC Address'],
-            devicename: measurement['Device Name'],
-            devicetype: parseInt(measurement['Device Type']),
-            datatype: parseInt(measurement['Data Type']),
-            crownID: parseInt(measurement['Crown ID']),
-            switchstate: parseInt(measurement['Switch State']),
-            flags: parseInt(measurement['Flags'])
           },
           fields: {
-            temperature: parseFloat(measurement['Temperature']),
-            powerfactor: parseFloat(measurement['Power Factor']),
-            powerusage: parseFloat(measurement['Power Usage']),
-            energyused: parseFloat(measurement['Energy Used'])
+            value: measurement['Value'],
+	    messageid: measurement['MessageID']
           },
-          timestamp: measurement['Local Timestamp']
+          timestamp: measurement['Timestamp']
         }], { precision: 's' })
           .then(() => {
             let result = { 'result': 'ok' }
