@@ -1,6 +1,4 @@
-// Set options as a parameter, environment variable, or rc file.
-// eslint-disable-next-line no-global-assign
-require = require('esm')(module/* , options */)
+const Http = require('http')
 const Express = require('express')
 const Influx = require('influx')
 const WebSocket = require('ws')
@@ -28,12 +26,50 @@ const influx = new Influx.InfluxDB({
 
 //All is well, starting Express webserver, static content, a REST endpoint and a Websocket endpoint:
 const app = Express()
+const server = Http.createServer(app)
+
 app.use(Express.static('static'))
 const api = new Express()
 app.use('/api/', api)
-const wssa = new Express()
-app.use('/ws/', wssa)
-const wss = WebSocker.Server({ wssa })
+const wss = new WebSocket.Server({server:server})
+
+//Configure the Websocket endpoint
+wss.on('connection', function connection (ws) {
+  ws.on('message', function incoming (message) {
+      try {
+        let measurement = JSON.parse(message)
+        if (!measurement['Undagrid Debug Log']) {
+          ws.send({
+            'result': 'error',
+            'error': 'This doesn\'t look like Undagrid Debug Log data to me.'
+          })
+        } else {
+          //forward measurement to influx db
+          influx.writePoints([{
+            measurement: 'undagrid_debug_log',
+            tags: {},
+            fields: {
+              value: measurement['Value'],
+              messageid: measurement['MessageID']
+            },
+            timestamp: measurement['Timestamp']
+          }], { precision: 's' })
+            .then(() => {
+              let result = { 'result': 'ok' }
+              ws.send(result)
+            }).catch((e) => {
+            console.error(e)
+            ws.send({ 'result': 'error', 'error': 'Couldn\'t write to database' })
+          })
+        }
+      }
+      catch
+        (e) {
+        console.log('Could not parse json in message: ' + message)
+      }
+    }
+  )
+})
 
 //Configure the REST endpoint
 api.use(require('body-parser').json())
@@ -72,47 +108,7 @@ api
     }
   })
 
-//Configure the Websocket endpoint
-wss.on('connection', function connection (ws) {
-  ws.on('message', function incoming (message) {
-      console.log('received: %s', message)
-      try {
-        let measurement = JSON.parse(message)
-        if (!measurement['Undagrid Debug Log']) {
-          ws.send({
-            'result': 'error',
-            'error': 'This doesn\'t look like Undagrid Debug Log data to me.'
-          })
-        } else {
-          //forward measurement to influx db
-          influx.writePoints([{
-            measurement: 'undagrid_debug_log',
-            tags: {},
-            fields: {
-              value: measurement['Value'],
-              messageid: measurement['MessageID']
-            },
-            timestamp: measurement['Timestamp']
-          }], { precision: 's' })
-            .then(() => {
-              let result = { 'result': 'ok' }
-              ws.send(result)
-            }).catch((e) => {
-            console.error(e)
-            ws.send({ 'result': 'error', 'error': 'Couldn\'t write to database' })
-          })
-        }
-      }
-      catch
-        (e) {
-        console.log('Could not parse json in message: ' + message)
-      }
-    }
-  )
-})
-
 //Actually start listening.
-app.listen(argv['port'], () => {
+server.listen(argv['port'], () => {
   console.log('Server running on port ' + argv['port'])
 })
-module.exports = require('./main.js')
