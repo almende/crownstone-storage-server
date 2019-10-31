@@ -43,10 +43,11 @@ api
 
       let measurement = req.body
       if (Array.isArray(measurement)) {
-        measurements.concat(measurement)
+        measurements = measurements.concat(measurement)
       } else {
         measurements.push(measurement)
       }
+      console.log(measurements)
       measurements.map((item) => {
         if (typeof item['Timestamp'] !== 'undefined') {
           if (typeof item['Amps'] !== 'undefined') {
