@@ -47,7 +47,6 @@ api
       } else {
         measurements.push(measurement)
       }
-      console.log(measurements)
       measurements.map((item) => {
         if (typeof item['Timestamp'] !== 'undefined') {
           if (typeof item['Amps'] !== 'undefined') {
