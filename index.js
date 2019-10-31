@@ -31,7 +31,7 @@ const server = Http.createServer(app)
 app.use(Express.static('static'))
 const api = new Express()
 app.use('/api/', api)
-const wss = new WebSocket.Server({server:server})
+const wss = new WebSocket.Server({ server: server })
 
 //Configure the Websocket endpoint
 wss.on('connection', function connection (ws) {
@@ -56,10 +56,10 @@ wss.on('connection', function connection (ws) {
           }], { precision: 's' })
             .then(() => {
               let result = { 'result': 'ok' }
-              ws.send(result)
+              ws.send(JSON.stringify(result))
             }).catch((e) => {
             console.error(e)
-            ws.send({ 'result': 'error', 'error': 'Couldn\'t write to database' })
+            ws.send(JSON.stringify({ 'result': 'error', 'error': 'Couldn\'t write to database' }))
           })
         }
       }
