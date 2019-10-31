@@ -42,7 +42,7 @@ api
       let measurements = []
 
       let measurement = req.body
-      if (measurement.isArray()) {
+      if (Array.isArray(measurement)) {
         measurements.concat(measurement)
       } else {
         measurements.push(measurement)
