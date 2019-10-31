@@ -38,24 +38,49 @@ api
       // Send error here
       res.status(400).send({ 'result': 'error', 'error': 'Expected application/json contents' })
     } else {
+      let points = []
+      let measurements = []
+
       let measurement = req.body
-      if (!measurement['Big Brother Data']) {
+      if (measurement.isArray()) {
+        measurements.concat(measurement)
+      } else {
+        measurements.push(measurement)
+      }
+      measurements.map((item) => {
+        if (typeof item['Timestamp'] !== 'undefined') {
+          if (typeof item['Amps'] !== 'undefined') {
+            points.push({
+              measurement: 'amps',
+              tags: {},
+              fields: {
+                amps: item['Amps']
+              },
+              timestamp: item['Timestamp']
+            })
+          }
+          if (typeof item['Volts'] !== 'undefined') {
+            points.push({
+              measurement: 'volts',
+              tags: {},
+              fields: {
+                volts: item['Volts']
+              },
+              timestamp: item['Timestamp']
+            })
+          }
+        } else {
+          console.log('Measurement missed Timestamp.', item)
+        }
+      })
+      if (points.length === 0) {
         res.status(400).send({
           'result': 'error',
-          'error': 'This doesn\'t look like Crownstone data to me, missing Timestamp'
+          'error': 'This doesn\'t look like Crownstone data to me, missing Amps or Volts'
         })
       } else {
         //forward measurement to influx db
-        influx.writePoints([{
-          measurement: 'crownstone',
-          tags: {
-          },
-          fields: {
-            amps: measurement['Amps'],
-	    volts: measurement['Volts']
-          },
-          timestamp: measurement['Timestamp']
-        }])
+        influx.writePoints(points)
           .then(() => {
             let result = { 'result': 'ok' }
             res.send(result)
